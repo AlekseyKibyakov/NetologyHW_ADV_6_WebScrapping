@@ -32,7 +32,7 @@ def get_links(url, res_list, page_num):
         with alive_bar(title=f'Page {page_num+1} Vacancy {i+1}') as bar:
             sal_and_desc = get_salary_and_vacancy_description(item.attrs['href'])
             if re.match(regexp_search, sal_and_desc[1]):
-                if 'USD' in sal_and_desc[0]:
+                # if 'USD' in sal_and_desc[0]:
                     res_list.append({
                         'title': item.contents[0],
                         'link': item.attrs['href'],
@@ -50,9 +50,9 @@ def get_salary_and_vacancy_description(url):
         soup = BeautifulSoup(req.text, 'lxml')
         salary = soup.find("span", class_="bloko-header-section-2 bloko-header-section-2_lite")
         if salary is None:
-            time.sleep(0.5)
+            time.sleep(0.2)
             continue
-        description = soup.find_all(attrs=attr_description)[0]
+        description = soup.find(attrs=attr_description)
         text_salary = salary.text.replace('\xa0', "")
         return [text_salary, description.text]
 
@@ -64,17 +64,17 @@ if __name__ == "__main__":
     # while True:
     while True:
         response = requests.get(url=url, headers=get_headers(), params=get_params(counter))
+        time.sleep(t)
         if 100 < response.status_code < 300:
             get_links(url, result, counter)
             counter += 1
         else:
             print("The End!")
             break
-        time.sleep(t)
+        
 
-    pprint(result) 
-
-    with open('vacancies.json', 'w') as v:
-        json.dump(result, v)
+    with open('vacancies.json', 'w', encoding='utf-8') as v:
+        json.dump(result, v, ensure_ascii=False)
+            
 
     
